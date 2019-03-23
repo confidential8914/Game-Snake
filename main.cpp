@@ -2,6 +2,11 @@
 #include       "C:\dllBridge\Lego\WinMain.h"  
 using namespace Lego;
 
+#define  body 1
+#define apple 2
+
+#include <time.h>
+
 const short int FieldX    = 24;
 const short int FieldY    = 24;
 const short int size     = 500;
@@ -22,10 +27,13 @@ int OldField[SizeArray][SizeArray];
 short int tail;
 short int head;
 
-short int length = 1;
-short int score  = 0;
+short int NApples = 50;
+short int length  = 3;
+short int score   = 0;
 
 short int Press;
+
+bool CreateApple = false;
 
 void Square(int x, int y, int Color)
 {
@@ -44,7 +52,14 @@ struct Coordinates
 	short int x;
 	short int y;
 		
-}Cells[SizeArray][SizeArray];
+};
+
+int NfCV;
+int NfC;
+
+Coordinates Cells[SizeArray][SizeArray];
+Coordinates CSnake[1000];
+Coordinates CApple[1000];
 
 void SetCoordinatesForCells()
 {	
@@ -104,6 +119,39 @@ void DrawingField(int x, int y, int size)
 	
 }
 
+class Apple
+{
+private:
+	
+	void Draw(int randX, int randY)
+	{
+		NfC++;
+		
+		Field[randX][randY] = apple; 	
+		Square(Cells[randX][randY].x, Cells[randX][randY].y, Red);
+		
+		CApple[NfC].x = randX;
+		CApple[NfC].y = randY;
+	}
+	
+	void Coordinates()
+	{	
+		srand(time(0));
+		
+		int randX = rand()%SizeArray,
+			randY = rand()%SizeArray;
+		
+		Draw(randX, randY);
+	}
+
+public:
+	
+	void main()
+	{
+		Coordinates();
+	}
+};
+
 class Snake
 {
 private:						
@@ -111,17 +159,40 @@ private:
 	int x;
 	int y;
 	
+	bool stand;
+	
+	
 	void Drwing(int x, int y)
 	{
 		Square(Cells[x][y].x, Cells[x][y].y, Green);	
-		Field[x][y] = 1;
+		Field[x][y] = body;
 	}
 	
+	//?????????????????????????????????????????????????????????????//
 	void Motion()
 	{	
+		NfCV++;
+		Press++;
+		
+		CSnake[NfCV].x = x;
+		CSnake[NfCV].y = y;	
+		
 		head++; 
 		tail = (head - (length - 1)) - 1;
-	}
+		
+		Field[CSnake[tail].x][CSnake[tail].y] = -1;
+		ChecksCells(Black);
+				
+		for(int i = tail + 1; i <= head; i++)
+		{
+			Square(Cells[CSnake[i].x][CSnake[i].y].x, Cells[CSnake[i].x][CSnake[i].y].y, Green);	
+		}
+		
+		Square(Cells[CSnake[tail].x][CSnake[tail].y].x, Cells[CSnake[tail].x][CSnake[tail].y].y, Black);
+		
+	}	
+	//?????????????????????????????????????????????????????????????//
+	
 	
 	void Control()
 	{ 	
@@ -154,7 +225,8 @@ public:
 
 };
 
-Snake a;
+Snake snake;
+Apple apples;
 
 void INIT()
 {	
@@ -164,7 +236,10 @@ void INIT()
 
 void START()
 {  
-	a.main();
+	snake.main();
+	
+	if(CreateApple)
+		apples.main();
 }
 
 
