@@ -27,8 +27,8 @@ int OldField[SizeArray][SizeArray];
 short int tail;
 short int head;
 
-short int NApples = 50;
-short int length  = 9;
+short int NApples = 5;
+short int length  = 1;
 short int score   = 0;
 
 short int Press;
@@ -97,7 +97,6 @@ void ChecksCells(int Color)
 
 void DrawingField(int x, int y, int size)
 {
-	hdc = GetDC(hWnd);
 			
 	pen = CreatePen(PS_SOLID, 1, Gray);	
 	SelectObject (hdc, pen);		
@@ -117,7 +116,7 @@ void DrawingField(int x, int y, int size)
 	
 	SetCoordinatesForCells();
 	
-	for(int i = 0; i < SizeArray; i++)
+	for(int i = 1; i < SizeArray - 1; i++)
 	{	
 		Square(Cells[0 ][i].x, Cells[0 ][i].y, Gray);
 		Square(Cells[24][i].x, Cells[24][i].y, Gray);
@@ -125,78 +124,21 @@ void DrawingField(int x, int y, int size)
 		Square(Cells[i][24].x, Cells[i][24].y, Gray);
 	}
 	
-	ReleaseDC(hWnd, hdc);
-	
 }
 
-class Apple
-{
-private:
-	
-	void Drawing(int randX, int randY)
-	{
-		NfC++;
-		
-		Field[randX][randY] = apple; 	
-		Square(Cells[randX][randY].x, Cells[randX][randY].y, Red);
-		
-		CApple[NfC].x = randX;
-		CApple[NfC].y = randY;
-	}
-	
-	void Coordinates()
-	{	
-		Repeat:
-			
-		srand(time(0));
-		
-		int randX = rand()%SizeArray,
-			randY = rand()%SizeArray;
-		
-		if(randX < 1 || randY < 1 || randX > 23 || randY > 23)
-			goto Repeat;
-		
-		Drawing(randX, randY);
-	}
-
-public:
-	
-	void main()
-	{
-		Coordinates();
-	}
-};
-
-Apple apples;
 
 class Snake
 {
-private:						
+public:
 	
 	int x;
 	int y;
 	
+private:						
+	
 	bool stand;
 	
-	void AteApple()
-	{			
-		if(x == CApple[NfC].x && y == CApple[NfC].y )
-		{	
-			Beep(500, 50);
-			length++;
-					
-			Field[x][y] = 0;
-			CreateApple = true;
-		}
-	}
-	
-	
-	void Drwing(int x, int y)
-	{
-		Square(Cells[x][y].x, Cells[x][y].y, Green);	
-		Field[x][y] = body;
-	}
-	
+		
 	void Restart()
 	{
 		x = (SizeArray / 2) - 1;	
@@ -223,9 +165,39 @@ private:
 			{	
 				Square(Cells[a][b].x, Cells[a][b].y, Black);	
 			}
-			
+	
 		DrawingField(FieldX, FieldY, size);
-		apples.main();
+				
+		CreateApple = true;
+	}
+	
+	void Collision()
+	{
+		for(int i = tail; i < head; i++)
+			if(CSnake[i].x == CSnake[NfCV].x && CSnake[i].y == CSnake[NfCV].y)
+				Restart();		
+	}
+	
+	void AteApple()
+	{			
+		if(x == CApple[NfC].x && y == CApple[NfC].y )
+		{	
+			Beep(500, 50);
+			length++;
+			score += 5;
+			
+			NApples--;
+								
+			Field[x][y] = 0;
+			CreateApple = true;
+		}
+	}
+	
+	
+	void Drwing(int x, int y)
+	{
+		Square(Cells[x][y].x, Cells[x][y].y, Green);	
+		Field[x][y] = body;
 	}
 	
 	void Boundaries()
@@ -283,6 +255,7 @@ public:
 	
 	void main()
 	{
+		Collision();
 		Control();
 		Drwing(x, y);
 		AteApple();
@@ -290,8 +263,88 @@ public:
 	}
 
 };
-
 Snake snake;
+
+class Apple
+{
+
+private:
+	
+	int randX,
+		randY;
+
+public: 
+	
+	void Drawing()
+	{
+		Square(Cells[randX][randY].x, Cells[randX][randY].y, Red);
+	}
+
+private:
+	
+	void Coordinates()
+	{	
+		Repeat:
+			
+		srand(time(0));
+		
+		randX = rand()%SizeArray,
+		randY = rand()%SizeArray;
+		
+		if(randX < 1 || randY < 1 || randX > 23 || randY > 23)
+			goto Repeat;
+				
+		NfC++;
+		Field[randX][randY] = apple; 
+		CApple[NfC].x = randX;
+		CApple[NfC].y = randY;
+		
+		Drawing();
+	}
+
+public:
+	
+	void main()
+	{
+		Coordinates();
+	}
+};
+
+Apple apples;
+
+class ConstrolBar
+{
+	
+private:
+	
+	void CreateItems()
+	{
+		Button btn[10];	
+		EditBox edt[10];
+	}
+
+public:
+	
+	void Drawing(int x, int y)
+	{	
+		pen = CreatePen(PS_SOLID, 1, Gray);	
+		SelectObject (hdc, pen);
+		
+		for(int i = 0; i < 2; i++)
+		{
+			MoveToEx(hdc, x + (i * 150), y, NULL); 
+			LineTo(hdc, x + (i * 150), y + 510);		
+			
+			MoveToEx(hdc, x, y + (i * 510), NULL); 
+			LineTo(hdc, x + 150, y + (i * 510));		
+			
+		}			
+	}
+	
+	void main()
+	{}
+	
+}Bar;
 
 void INIT()
 {	
@@ -313,6 +366,9 @@ void START()
 	
 	if(CreateApple)
 		apples.main();
+	
+	apples.Drawing();
+	
 }
 
 
@@ -390,7 +446,8 @@ void START()
 /////////////////////////////////////////////////     void mainPAINT()    /////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void mainPAINT()
-{
+{	
+	Bar.Drawing(FieldX + 515, FieldY - 5);
 	DrawingField(FieldX, FieldY, size);
 }
 
