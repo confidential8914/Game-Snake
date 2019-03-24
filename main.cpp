@@ -28,7 +28,7 @@ short int tail;
 short int head;
 
 short int NApples = 50;
-short int length  = 1;
+short int length  = 9;
 short int score   = 0;
 
 short int Press;
@@ -57,7 +57,7 @@ struct Coordinates
 int NfCV;
 int NfC;
 
-Coordinates Cells[SizeArray][SizeArray];
+Coordinates Cells[SizeArray + 2][SizeArray + 2];
 Coordinates CSnake[1000];
 Coordinates CApple[1000];
 
@@ -101,7 +101,7 @@ void DrawingField(int x, int y, int size)
 			
 	pen = CreatePen(PS_SOLID, 1, Gray);	
 	SelectObject (hdc, pen);		
-	
+		
 	x -= 5;
 	y -= 5;
 	size += 10;
@@ -115,6 +115,16 @@ void DrawingField(int x, int y, int size)
 		LineTo(hdc, x + (i * size), y + size);			
 	}
 	
+	SetCoordinatesForCells();
+	
+	for(int i = 0; i < SizeArray; i++)
+	{	
+		Square(Cells[0 ][i].x, Cells[0 ][i].y, Gray);
+		Square(Cells[24][i].x, Cells[24][i].y, Gray);
+		Square(Cells[i ][0].x, Cells[i ][0].y, Gray);
+		Square(Cells[i][24].x, Cells[i][24].y, Gray);
+	}
+	
 	ReleaseDC(hWnd, hdc);
 	
 }
@@ -123,7 +133,7 @@ class Apple
 {
 private:
 	
-	void Draw(int randX, int randY)
+	void Drawing(int randX, int randY)
 	{
 		NfC++;
 		
@@ -141,7 +151,7 @@ private:
 		int randX = rand()%SizeArray,
 			randY = rand()%SizeArray;
 		
-		Draw(randX, randY);
+		Drawing(randX, randY);
 	}
 
 public:
@@ -166,6 +176,45 @@ private:
 	{
 		Square(Cells[x][y].x, Cells[x][y].y, Green);	
 		Field[x][y] = body;
+	}
+	
+	void Restart()
+	{
+		x = (SizeArray / 2) - 1;	
+		y = (SizeArray / 2) - 1;	
+		
+		length = 1;
+		score  = 0;
+		tail   = 0;
+		head   = 0;
+		
+		Key_Pressed = 0;
+		
+		NfC    = 0;
+		NfCV   = 0;
+	
+		for(int i = 0; i < 1000; i++)
+		{	
+			CSnake[i].x = CApple[i].x = 0;
+			CSnake[i].y = CApple[i].y = 0;
+		}	
+		
+		for(int a = 0; a < SizeArray; a++)
+			for(int b = 0; b < SizeArray; b++)
+			{	
+				Square(Cells[a][b].x, Cells[a][b].y, Black);	
+			}
+			
+		DrawingField(FieldX, FieldY, size);
+	}
+	
+	void Boundaries()
+	{
+		if(x <= 0 || x >= 24)
+			Restart();	
+			
+		if(y <= 0 || y >= 24)
+			Restart();	
 	}
 	
 	//?????????????????????????????????????????????????????????????//
@@ -216,6 +265,7 @@ public:
 	{
 		Control();
 		Drwing(x, y);
+		Boundaries();
 	}
 
 };
@@ -225,12 +275,15 @@ Apple apples;
 
 void INIT()
 {	
-	SetCoordinatesForCells();
+	
 	
 }
 
 void START()
-{  
+{  	
+	Square(Cells[0][0].x, Cells[0][0].y, Gray);	
+	SetCoordinatesForCells();
+	
 	snake.main();
 	
 	if(CreateApple)
