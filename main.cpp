@@ -28,7 +28,7 @@ short int tail;
 short int head;
 
 short int NApples = 50;
-short int length  = 3;
+short int length  = 1;
 short int score   = 0;
 
 short int Press;
@@ -173,20 +173,15 @@ private:
 	{	
 		NfCV++;
 		Press++;
-		
+			
 		CSnake[NfCV].x = x;
 		CSnake[NfCV].y = y;	
 		
 		head++; 
 		tail = (head - (length - 1)) - 1;
 		
-		Field[CSnake[tail].x][CSnake[tail].y] = -1;
-		ChecksCells(Black);
-				
 		for(int i = tail + 1; i <= head; i++)
-		{
 			Square(Cells[CSnake[i].x][CSnake[i].y].x, Cells[CSnake[i].x][CSnake[i].y].y, Green);	
-		}
 		
 		Square(Cells[CSnake[tail].x][CSnake[tail].y].x, Cells[CSnake[tail].x][CSnake[tail].y].y, Black);
 		
@@ -196,7 +191,7 @@ private:
 	
 	void Control()
 	{ 	
-		for(int i = 37; i != 40; i++)
+		for(int i = 37; i <= 40; i++)
 			if(Key_Pressed == i)
 				Motion();
 		
