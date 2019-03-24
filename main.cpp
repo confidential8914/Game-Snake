@@ -3,7 +3,7 @@
 using namespace Lego;
 
 #define  body 1
-#define apple 2
+#define apple 10
 
 #include <time.h>
 
@@ -33,7 +33,7 @@ short int score   = 0;
 
 short int Press;
 
-bool CreateApple = false;
+bool CreateApple = true;
 
 void Square(int x, int y, int Color)
 {
@@ -146,10 +146,15 @@ private:
 	
 	void Coordinates()
 	{	
+		Repeat:
+			
 		srand(time(0));
 		
 		int randX = rand()%SizeArray,
 			randY = rand()%SizeArray;
+		
+		if(randX < 1 || randY < 1 || randX > 23 || randY > 23)
+			goto Repeat;
 		
 		Drawing(randX, randY);
 	}
@@ -162,6 +167,8 @@ public:
 	}
 };
 
+Apple apples;
+
 class Snake
 {
 private:						
@@ -170,6 +177,18 @@ private:
 	int y;
 	
 	bool stand;
+	
+	void AteApple()
+	{			
+		if(x == CApple[NfC].x && y == CApple[NfC].y )
+		{	
+			Beep(500, 50);
+			length++;
+					
+			Field[x][y] = 0;
+			CreateApple = true;
+		}
+	}
 	
 	
 	void Drwing(int x, int y)
@@ -206,6 +225,7 @@ private:
 			}
 			
 		DrawingField(FieldX, FieldY, size);
+		apples.main();
 	}
 	
 	void Boundaries()
@@ -265,13 +285,13 @@ public:
 	{
 		Control();
 		Drwing(x, y);
+		AteApple();
 		Boundaries();
 	}
 
 };
 
 Snake snake;
-Apple apples;
 
 void INIT()
 {	
@@ -280,11 +300,16 @@ void INIT()
 }
 
 void START()
-{  	
-	Square(Cells[0][0].x, Cells[0][0].y, Gray);	
-	SetCoordinatesForCells();
+{  		
+	SetCoordinatesForCells(); // ??????????? // 
 	
 	snake.main();
+	
+	if(CreateApple == true)
+	{	
+		apples.main();
+		CreateApple = false;
+	}
 	
 	if(CreateApple)
 		apples.main();
