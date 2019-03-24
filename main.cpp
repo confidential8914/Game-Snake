@@ -5,6 +5,8 @@ using namespace Lego;
 #define  body 1
 #define apple 10
 
+#define NA 2  
+
 #include <time.h>
 
 const short int FieldX    = 24;
@@ -27,7 +29,7 @@ int OldField[SizeArray][SizeArray];
 short int tail;
 short int head;
 
-short int NApples = 5;
+short int NApples = NA;
 short int length  = 1;
 short int score   = 0;
 
@@ -138,11 +140,12 @@ private:
 	
 	bool stand;
 	
-		
 	void Restart()
 	{
 		x = (SizeArray / 2) - 1;	
 		y = (SizeArray / 2) - 1;	
+		
+		NApples = NA;
 		
 		length = 1;
 		score  = 0;
@@ -171,11 +174,28 @@ private:
 		CreateApple = true;
 	}
 	
+	void GameOver(int Color)
+	{
+		for(int a = 1; a < SizeArray - 1; a++)
+			for(int b = 1; b < SizeArray - 1; b++)	
+			{	
+				Field[a][b] = Color;
+				Square(Cells[a][b].x, Cells[a][b].y, Field[a][b]);
+				Sleep(1);
+			}
+			
+		Sleep(1);
+		Restart();
+	}	
+	
 	void Collision()
 	{
 		for(int i = tail; i < head; i++)
 			if(CSnake[i].x == CSnake[NfCV].x && CSnake[i].y == CSnake[NfCV].y)
+			{	
+				GameOver(Red);
 				Restart();		
+			}
 	}
 	
 	void AteApple()
@@ -203,10 +223,15 @@ private:
 	void Boundaries()
 	{
 		if(x <= 0 || x >= 24)
+		{	
 			Restart();	
-			
+			GameOver(Red);
+		}	
 		if(y <= 0 || y >= 24)
+		{
 			Restart();	
+			GameOver(Red);
+		}
 	}
 	
 	//?????????????????????????????????????????????????????????????//
@@ -254,7 +279,10 @@ public:
 	}
 	
 	void main()
-	{
+	{	
+		if(NApples == 0)
+			GameOver(Green);
+		
 		Collision();
 		Control();
 		Drwing(x, y);
@@ -312,7 +340,7 @@ public:
 
 Apple apples;
 
-class ConstrolBar
+class ControlBar
 {
 	
 private:
@@ -342,19 +370,24 @@ public:
 	}
 	
 	void main()
-	{}
+	{
+		if(Timer_CLK < 5)
+		{			
+			CreateItems();	
+		}
+	}
 	
 }Bar;
 
 void INIT()
 {	
-	
-	
 }
 
 void START()
 {  		
 	SetCoordinatesForCells(); // ??????????? // 
+	
+	Bar.main();
 	
 	snake.main();
 	
@@ -448,7 +481,7 @@ void START()
 void mainPAINT()
 {	
 	Bar.Drawing(FieldX + 515, FieldY - 5);
-	DrawingField(FieldX, FieldY, size);
+	DrawingField(FieldX, FieldY, size);	
 }
 
 
