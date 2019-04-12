@@ -5,8 +5,6 @@ using namespace Lego;
 #define  body 1
 #define apple 10
 
-#define NA 399  
-
 #include <time.h>
 
 const short int FieldX    = 24;
@@ -29,7 +27,8 @@ int OldField[SizeArray][SizeArray];
 short int tail;
 short int head;
 
-short int NApples = NA;
+
+short int NApples;
 short int length  = 1;
 short int score   = 0;
 
@@ -39,14 +38,10 @@ bool CreateApple = true;
 
 void Square(int x, int y, int Color)
 {
-	hdc = GetDC(hWnd);
-
 	brush = CreateSolidBrush(Color);	
 	SelectObject(hdc, brush);	
 	
 	Rectangle(hdc, x, y, x + SizeCells, y + SizeCells);	
-	
-	ReleaseDC(hWnd,hdc);
 }
 
 struct Coordinates
@@ -87,7 +82,9 @@ void SetCoordinatesForCells()
 }
 
 void ChecksCells(int Color)
-{
+{	
+	hdc = GetDC(hWnd);
+	
 	for(int a = 0; a < SizeArray; a++)	
 		for(int b = 0; b < SizeArray; b++)
 			if(OldField[a][b] != Field[a][b])
@@ -95,6 +92,8 @@ void ChecksCells(int Color)
 				Square(Cells[a][b].x, Cells[a][b].y, Color);
 				OldField[a][b] = Field[a][b];	
 			}
+					
+	ReleaseDC(hWnd, hdc);
 }
 
 void DrawingField(int x, int y, int size)
@@ -145,7 +144,7 @@ private:
 		x = (SizeArray / 2) - 1;	
 		y = (SizeArray / 2) - 1;	
 		
-		NApples = NA;
+		NApples = rand()%100;
 		
 		length = 1;
 		score  = 0;
@@ -163,6 +162,8 @@ private:
 			CSnake[i].y = CApple[i].y = 0;
 		}	
 		
+		hdc = GetDC(hWnd);
+		
 		for(int a = 0; a < SizeArray; a++)
 			for(int b = 0; b < SizeArray; b++)
 			{	
@@ -171,11 +172,15 @@ private:
 	
 		DrawingField(FieldX, FieldY, size);
 				
+		ReleaseDC(hWnd, hdc);
+			
 		CreateApple = true;
 	}
 	
 	void GameOver(int Color)
-	{
+	{	
+		hdc = GetDC(hWnd);
+
 		for(int a = 1; a < SizeArray - 1; a++)
 			for(int b = 1; b < SizeArray - 1; b++)	
 			{	
@@ -183,7 +188,10 @@ private:
 				Square(Cells[a][b].x, Cells[a][b].y, Field[a][b]);
 		   	    Sleep(1);
 			}
+		
 		Restart();
+		
+		ReleaseDC(hWnd, hdc);
 	}	
 	
 	void Collision()
@@ -213,9 +221,13 @@ private:
 	
 	
 	void Drwing(int x, int y)
-	{
+	{	
+		hdc = GetDC(hWnd);
+
 		Square(Cells[x][y].x, Cells[x][y].y, Green);	
 		Field[x][y] = body;
+		
+		ReleaseDC(hWnd, hdc);
 	}
 	
 	void Boundaries()
@@ -232,9 +244,10 @@ private:
 		}
 	}
 	
-	//?????????????????????????????????????????????????????????????//
 	void Motion()
 	{	
+		hdc = GetDC(hWnd);
+						
 		NfCV++;
 		Press++;
 			
@@ -249,8 +262,9 @@ private:
 		
 		Square(Cells[CSnake[tail].x][CSnake[tail].y].x, Cells[CSnake[tail].x][CSnake[tail].y].y, Black);
 		
+		ReleaseDC(hWnd, hdc);
+		
 	}	
-	//?????????????????????????????????????????????????????????????//
 	
 	
 	void Control()
@@ -278,7 +292,7 @@ public:
 	
 	void main()
 	{	
-		if(length == 399)
+		if(NApples == 0)
 			GameOver(Green);
 		
 		Collision();
@@ -302,8 +316,10 @@ private:
 public: 
 	
 	void Drawing()
-	{
+	{	
+		hdc = GetDC(hWnd);
 		Square(Cells[randX][randY].x, Cells[randX][randY].y, Red);
+		ReleaseDC(hWnd, hdc);				
 	}
 
 private:
@@ -338,6 +354,9 @@ public:
 
 Apple apples;
 
+Button  BtnSave, BtnSAnon, BtnPause;
+EditBox EdtName;
+
 class ControlBar
 {
 	
@@ -349,6 +368,32 @@ private:
 		EditBox edt[10];
 	}
 
+	void Parameters()
+	{
+		Print_Set_Font(7);
+		
+		Print(550, 35, "Score: " , score);
+		Print(550, 70, "Length: ", length);
+		
+		Print(550, 100, "Number of apples");
+		Print(550, 120, "remaining: ", NApples);
+		Print(546, 150, "(it's a random number)");
+		
+		Print(540, 185, "-----------------------------");		
+		Print(540, 280, "--------Top-players-------");
+		
+	}
+	
+	void EFSaveUser()
+	{	
+		EdtName.Create("Enter your name", 545, 215, 105, 25);
+		
+		BtnSave .Create("Save", 658, 215, 75, 25);
+		BtnSAnon.Create("Save anonymously", 545, 245, 105, 25);
+		
+		BtnPause.Create("Pause", 658, 245, 75, 25);
+	}	
+
 public:
 	
 	void Drawing(int x, int y)
@@ -358,17 +403,21 @@ public:
 		
 		for(int i = 0; i < 2; i++)
 		{
-			MoveToEx(hdc, x + (i * 150), y, NULL); 
-			LineTo(hdc, x + (i * 150), y + 510);		
+			MoveToEx(hdc, x + (i * 205), y, NULL); 
+			LineTo(hdc, x + (i * 205), y + 510);		
 			
 			MoveToEx(hdc, x, y + (i * 510), NULL); 
-			LineTo(hdc, x + 150, y + (i * 510));		
-			
+			LineTo(hdc, x + 205, y + (i * 510));		
 		}			
+		
 	}
-	
+
 	void main()
-	{
+	{	
+		if(Timer_CLK == 4)
+			EFSaveUser();
+		
+		Parameters();
 		if(Timer_CLK < 5)
 		{			
 			CreateItems();	
@@ -379,27 +428,43 @@ public:
 
 void INIT()
 {	
+	srand(time(0));
+	NApples = rand()%100;
 }
 
+int Pause = 1;
+
 void START()
-{  		
-	SetCoordinatesForCells(); // ??????????? // 
+{  	
+	if(BtnPause.Press())
+		Pause++;
 	
 	Bar.main();
 	
-	snake.main();
-	
-	if(CreateApple == true)
+	if(Pause % 2 != 0)
 	{	
-		apples.main();
-		CreateApple = false;
+		BtnPause.Rename("Pause");
+		
+		SetCoordinatesForCells(); 
+			
+		snake.main();
+				
+		if(CreateApple == true)
+		{	
+			apples.main();
+			CreateApple = false;
+		}
+				
+		if(CreateApple)
+			apples.main();
+			
+		apples.Drawing();
 	}
-	
-	if(CreateApple)
-		apples.main();
-	
-	apples.Drawing();
-	
+	else
+	{
+		BtnPause.Press();
+		BtnPause.Rename("Start");
+	}
 }
 
 
