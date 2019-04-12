@@ -5,7 +5,7 @@ using namespace Lego;
 #define  body 1
 #define apple 10
 
-#define NA 2  
+#define NA 399  
 
 #include <time.h>
 
@@ -59,7 +59,7 @@ struct Coordinates
 int NfCV;
 int NfC;
 
-Coordinates Cells[SizeArray + 2][SizeArray + 2];
+Coordinates Cells[SizeArray/* + 2*/][SizeArray/* + 2*/];
 Coordinates CSnake[1000];
 Coordinates CApple[1000];
 
@@ -181,10 +181,8 @@ private:
 			{	
 				Field[a][b] = Color;
 				Square(Cells[a][b].x, Cells[a][b].y, Field[a][b]);
-				Sleep(1);
+		   	    Sleep(1);
 			}
-			
-		Sleep(1);
 		Restart();
 	}	
 	
@@ -280,7 +278,7 @@ public:
 	
 	void main()
 	{	
-		if(NApples == 0)
+		if(length == 399)
 			GameOver(Green);
 		
 		Collision();
