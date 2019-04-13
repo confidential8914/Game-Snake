@@ -27,7 +27,6 @@ int OldField[SizeArray][SizeArray];
 short int tail;
 short int head;
 
-
 short int NApples;
 short int length  = 1;
 short int score   = 0;
@@ -35,6 +34,8 @@ short int score   = 0;
 short int Press;
 
 bool CreateApple = true;
+
+int OldKeyPressed;
 
 void Square(int x, int y, int Color)
 {
@@ -273,6 +274,9 @@ private:
 			if(Key_Pressed == i)
 				Motion();
 		
+		if(Key_Pressed == 37 || Key_Pressed == 38 || Key_Pressed == 39 || Key_Pressed == 40)
+			OldKeyPressed = Key_Pressed;
+		
 		switch(Key_Pressed)
 		{
 			case 37: y--; break;	
@@ -354,9 +358,6 @@ public:
 
 Apple apples;
 
-Button  BtnSave, BtnSAnon, BtnPause;
-EditBox EdtName;
-
 class ControlBar
 {
 	
@@ -379,19 +380,13 @@ private:
 		Print(550, 120, "remaining: ", NApples);
 		Print(546, 150, "(it's a random number)");
 		
-		Print(540, 185, "-----------------------------");		
-		Print(540, 280, "--------Top-players-------");
+		Print(540, 185, "------Command-keys-----");		
+		Print(540, 320, "--------Top-players-------");
 		
-	}
-	
-	void EFSaveUser()
-	{	
-		EdtName.Create("Enter your name", 545, 215, 105, 25);
+		Print(550, 215, "In order to stop the");
+		Print(550, 235, "game click 'space'");
 		
-		BtnSave .Create("Save", 658, 215, 75, 25);
-		BtnSAnon.Create("Save anonymously", 545, 245, 105, 25);
-		
-		BtnPause.Create("Pause", 658, 245, 75, 25);
+		Print(550, 265, "To save, press 'F1'");
 	}	
 
 public:
@@ -414,9 +409,6 @@ public:
 
 	void main()
 	{	
-		if(Timer_CLK == 4)
-			EFSaveUser();
-		
 		Parameters();
 		if(Timer_CLK < 5)
 		{			
@@ -434,16 +426,25 @@ void INIT()
 
 int Pause = 1;
 
+void CUTK()
+{
+	if(Key_Pressed == 32)
+	{	
+		Pause++;
+		Key_Pressed = OldKeyPressed;
+	}
+
+}
+
 void START()
 {  	
-	if(BtnPause.Press())
-		Pause++;
-	
 	Bar.main();
+	
+	CUTK();
 	
 	if(Pause % 2 != 0)
 	{	
-		BtnPause.Rename("Pause");
+		Print(550, 215, "In order to stop the");
 		
 		SetCoordinatesForCells(); 
 			
@@ -461,10 +462,7 @@ void START()
 		apples.Drawing();
 	}
 	else
-	{
-		BtnPause.Press();
-		BtnPause.Rename("Start");
-	}
+		Print(550, 215, "In order to start the");
 }
 
 
